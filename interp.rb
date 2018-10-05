@@ -34,35 +34,24 @@ def evaluate(exp, env)
     exp[1..-1].each do |e|
       evaluate(e, env)
     end
-
   when "var_ref"
-    # Variable reference: lookup the value corresponded to the variable
-    #
-    # Advice: env[???]
-    raise(NotImplementedError) # Problem 2
-
+    env[exp[1]]
   when "var_assign"
-    # Variable assignment: store (or overwrite) the value to the environment
-    #
-    # Advice: env[???] = ???
-    raise(NotImplementedError) # Problem 2
-
+    env[exp[1]] = evaluate(exp[2], env)
 
 #
 ## Problem 3: Branchs and loops
 #
+  when ">"
+    evaluate(exp[1], env) > evaluate(exp[2], env)
+
 
   when "if"
-    # Branch.  It evaluates either exp[2] or exp[3] depending upon the
-    # evaluation result of exp[1],
-    #
-    # Advice:
-    #   if ???
-    #     ???
-    #   else
-    #     ???
-    #   end
-    raise(NotImplementedError) # Problem 3
+    if evaluate(exp[1], env)
+      evaluate(exp[2], env)
+    else
+      evaluate(exp[3], env)
+    end
 
   when "while"
     # Loop.
