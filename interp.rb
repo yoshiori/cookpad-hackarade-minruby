@@ -141,20 +141,15 @@ def evaluate(exp, env)
 #
 ## Problem 6: Arrays and Hashes
 #
-
   # You don't need advices anymore, do you?
   when "ary_new"
-    raise(NotImplementedError) # Problem 6
-
+    exp[1..-1].map{ |e| evaluate(e, env)}
   when "ary_ref"
-    raise(NotImplementedError) # Problem 6
-
+    evaluate(exp[1], env)[evaluate(exp[2], env)]
   when "ary_assign"
-    raise(NotImplementedError) # Problem 6
-
+    evaluate(exp[1], env)[evaluate(exp[2], env)] = evaluate(exp[3], env)
   when "hash_new"
-    raise(NotImplementedError) # Problem 6
-
+    Hash[*exp[1..-1].map{ |e| evaluate(e, env)}]
   else
     p("error")
     pp(exp)
