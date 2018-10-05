@@ -4,7 +4,6 @@ require "minruby"
 def evaluate(exp, env)
   # exp: A current node of AST
   # env: An environment (explained later)
-
   case exp[0]
 
 #
@@ -31,8 +30,10 @@ def evaluate(exp, env)
 #
 
   when "stmts"
-    exp[1..-1].each do |e|
-      evaluate(e, env)
+    i = 1
+    while exp[i]
+      evaluate(exp[i], env)
+      i = i + 1
     end
   when "var_ref"
     env[exp[1]]
@@ -83,15 +84,23 @@ def evaluate(exp, env)
         Integer(evaluate(exp[2], env))
       when "fizzbuzz"
         num = evaluate(exp[2], env)
-        result = ""
-        if num % 3 == 0
-          result += "Fizz"
+        if num % 3 == 0 && num % 5 == 0
+          "FizzBuzz"
+        elsif num % 3 == 0
+          "Fizz"
+        elsif num % 5 == 0 
+          "Buzz"
+        else
+          num
         end
-        if num % 5 == 0
-          result += "Buzz"
-        end
-        result.empty? ? num : result
+      when "require"
+        require(evaluate(exp[2], env))
+      when "minruby_parse"
+        minruby_parse(evaluate(exp[2], env))
+      when "minruby_load"
+        File.read(ARGV.shift)
       else
+        pp exp
         raise("unknown builtin function")
       end
     else
@@ -119,10 +128,12 @@ def evaluate(exp, env)
       # For example, `a`, `b`, and `c` are the formal parameters of
       # `def foo(a, b, c)`.
       _env = {}
-      func[0].each_with_index do |key, i|
-        _env[key] = evaluate(exp[2 + i], env)
+      i = 0
+      while func[0][i]
+        _env[func[0][i]] = evaluate(exp[2 + i], env)
+        i = i + 1
       end
-      evaluate(*func[1..-1], _env)
+      evaluate(func[1], _env)
     end
 
   when "func_def"
@@ -134,7 +145,13 @@ def evaluate(exp, env)
     # All you need is store them into $function_definitions.
     #
     # Advice: $function_definitions[???] = ???
-    $function_definitions[exp[1]] = exp[2..-1]
+    i = 0
+    _exp = []
+    while exp[i + 2]
+      _exp[i] = exp[i + 2]
+      i = i + 1
+    end
+    $function_definitions[exp[1]] = _exp
     # raise(NotImplementedError) # Problem 5
 
 
@@ -143,13 +160,28 @@ def evaluate(exp, env)
 #
   # You don't need advices anymore, do you?
   when "ary_new"
-    exp[1..-1].map{ |e| evaluate(e, env)}
+    a = []
+    i = 0
+    while exp[i + 1]
+      a[i] = evaluate(exp[i + 1], env)
+      i = i + 1
+    end
+    a
   when "ary_ref"
     evaluate(exp[1], env)[evaluate(exp[2], env)]
   when "ary_assign"
     evaluate(exp[1], env)[evaluate(exp[2], env)] = evaluate(exp[3], env)
   when "hash_new"
-    Hash[*exp[1..-1].map{ |e| evaluate(e, env)}]
+    h = {}
+    i = 0
+    while exp[i + 1]
+      key = evaluate(exp[i + 1], env)
+      i = i + 1
+      value = evaluate(exp[i + 1], env)
+      i = i + 1
+      h[key] = value
+    end
+    h
   else
     p("error")
     pp(exp)
