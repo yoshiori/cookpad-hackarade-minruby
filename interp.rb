@@ -79,6 +79,18 @@ def evaluate(exp, env)
         # MinRuby's `p` method is implemented by Ruby's `p` method.
         p(evaluate(exp[2], env))
       # ... Problem 4
+      when "Integer"
+        Integer(evaluate(exp[2], env))
+      when "fizzbuzz"
+        num = evaluate(exp[2], env)
+        result = ""
+        if num % 3 == 0
+          result += "Fizz"
+        end
+        if num % 5 == 0
+          result += "Buzz"
+        end
+        result.empty? ? num : result
       else
         raise("unknown builtin function")
       end
