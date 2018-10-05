@@ -8,7 +8,23 @@ def evaluate(exp, env, function_definitions)
 
 
   when "method_call"
-    evaluate(exp[1], env, function_definitions).send(exp[2], *exp[3..-1].map{|e| evaluate(e, env, function_definitions)})
+    if exp[3].nil? || exp[3].empty?
+      evaluate(exp[1], env, function_definitions).send(exp[2])
+    else
+      evaluate(exp[1], env, function_definitions).send(exp[2], *exp[3..-1].map{|e| evaluate(e, env, function_definitions)})
+    end
+  when "class"
+    klass = Class.new
+    _funcs = {}
+    _env = {}
+    klass.define_method("method_missing") do |method_name, *args|
+      evaluate(["func_call", method_name.to_s, *args.map{|a| ["lit", a]}], _env, _funcs)
+    end
+    evaluate(exp[2], _env, _funcs)
+    $classes[exp[1]] = klass
+  when "const_ref"
+    $classes[exp[1]]
+
 # 
 ## Problem 1: Arithmetics
 #
@@ -193,7 +209,7 @@ def evaluate(exp, env, function_definitions)
   end
 end
 
-
+$classes = {}
 function_definitions = {}
 env = {}
 

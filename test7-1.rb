@@ -1,3 +1,4 @@
-arr = [1, 2]
-p(arr.size())
-p(arr.drop(1))
+array = []
+array.push(1)
+array.push(1, 2)
+p(array.nil?)
