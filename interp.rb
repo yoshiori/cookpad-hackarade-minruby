@@ -6,7 +6,10 @@ def evaluate(exp, env, function_definitions)
   # env: An environment (explained later)
   case exp[0]
 
-#
+
+  when "method_call"
+    evaluate(exp[1], env, function_definitions).send(exp[2], *exp[3..-1].map{|e| evaluate(e, env, function_definitions)})
+# 
 ## Problem 1: Arithmetics
 #
 
@@ -32,9 +35,10 @@ def evaluate(exp, env, function_definitions)
   when "stmts"
     i = 1
     while exp[i]
-      evaluate(exp[i], env, function_definitions)
+      last = evaluate(exp[i], env, function_definitions)
       i = i + 1
     end
+    last
   when "var_ref"
     env[exp[1]]
   when "var_assign"
