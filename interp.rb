@@ -44,6 +44,8 @@ def evaluate(exp, env)
 #
   when ">"
     evaluate(exp[1], env) > evaluate(exp[2], env)
+  when "<"
+    evaluate(exp[1], env) < evaluate(exp[2], env)
 
 
   when "if"
